@@ -70,5 +70,6 @@
         "iosfwd": "cpp",
         "cmath": "cpp"
     },
+    "typescript.inlayHints.enumMemberValues.enabled": true,
     // ----------------------------------------------------------------------------
 }
