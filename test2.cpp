@@ -2,37 +2,53 @@
 #include <string.h>
 int main()
 {
-    char str[5000];
-    gets(str);
-    int length = strlen(str);
-    char stack[2500];
-    int top = -1;
-    int is_right = 1;
-    for (int i = 0; i < length; i++)
+    long long int n;
+    scanf("%lld", &n);
+    char order[n][10];
+    char web[n][100];
+    char stack_web[n/4][100];
+    long long int top = -1;
+    long long int high = -1;
+    for (int i = 0; i < n; i++)
     {
-        if (str[i] == '(')
+        scanf("%s", order[i]);
+        if (order[i][0] == 'V')
+            scanf("%s", web[i]);
+        else if (order[i][0] == 'B')
+            continue;
+        else
+            continue;
+    }
+    for (int i = 0; i < n; i++)
+    {
+        if (order[i][0] == 'V')
         {
             top++;
-            stack[top] = str[i];
+            high = top;
+            strcpy(stack_web[top], web[i]);
+            printf("%s\n", stack_web[top]);
         }
-        else
+        else if (order[i][0] == 'B')
         {
-            if (top == -1 && i != length - 1)
-            {
-                is_right = 0;
-                break;
-            }
+            top--;
+            if (top >= 0)
+                printf("%s\n", stack_web[top]);
             else
             {
-                stack[top] = '\0';
+                printf("Ignore\n");
+                top++;
+            }
+        }
+        else if (order[i][0] == 'F')
+        {
+            top++;
+            if (top <= high && high >= 0)
+                printf("%s\n", stack_web[top]);
+            else
+            {
+                printf("Ignore\n");
                 top--;
             }
         }
     }
-    if (top == -1 && is_right == 1)
-    {
-        printf("Yes\n");
-    }
-    else
-        printf("No\n");
 }
