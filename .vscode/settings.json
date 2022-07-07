@@ -2,6 +2,7 @@
     "C_Cpp.clang_format_fallbackStyle": " Visual Studio",
     "C_Cpp.clang_format_style": " Visual Studio",
     "workbench.iconTheme": "vscode-icons-mac",
+    "workbench.colorTheme": "GitHub Dark",
     "editor.fontSize": 16,
     // 添加希望被忽略的文件,这样一些文件虽然存在于当前工作目录下,但是不会被显示在左侧的文件浏览器里
     "files.exclude": {
@@ -63,7 +64,6 @@
     "code-runner.preserveFocus": false,
     // Whether to ignore selection to always run entire file. (Default is false)
     "code-runner.ignoreSelection": true,
-    "workbench.colorTheme": "GitHub Dark",
     "C_Cpp.errorSquiggles": "EnabledIfIncludesResolve",
     "files.associations": {
         "string": "cpp",
@@ -71,5 +71,6 @@
         "cmath": "cpp"
     },
     "typescript.inlayHints.enumMemberValues.enabled": true,
+    "polacode.transparentBackground": false,
     // ----------------------------------------------------------------------------
 }
