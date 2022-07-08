@@ -24,6 +24,7 @@ int partition(RecType R[], int s, int t)
     R[i] = tmp;
     return i;
 }
+
 void QuickSort(RecType R[], int s, int t)
 {
     int i;
