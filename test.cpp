@@ -1,155 +1,141 @@
-#define _CRT_SECUE_NO_WARNINGS
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 
-#define INF 32767
+char map[20][20];
+
+typedef struct _Point
+{
+    char x;
+    char y;
+} Point;
+
+typedef struct _Snake
+{
+    Point Data[10];
+} Snake;
+
+typedef struct _QNode
+{
+    Point pos;
+    int dis;
+    Snake snake;
+} QNode;
+
+QNode q[10000];
+int qfront = -1, qend = 0;
+
 int n, m;
-float graph[201][201];
-int apath[201], sec[201];
-float secm;
-float D2(int v)
+
+
+Snake CurrentSnake;
+int SnakeLen;
+Point EndPoint;
+bool vis[20][20];
+
+const Point move[4] =
 {
-    int path[201];
-    float dist[201], mind;
-    int S[201];
-    int i, j, u;
-    for (i = 1; i <= n; i++)
+    {1, 0},
+    {-1, 0},
+    {0, 1},
+    {0, -1}
+};
+
+bool check(const Point const* p, const Snake const* s)
+{
+    if (vis[p->x][p->y])
+        return false;
+    if (p->x < 0 || p->x >= n || p->y < 0 || p->y >= m)
+        return false;
+    if (map[p->x][p->y] == '#')
+        return false;
+    for (register int i = 1; i <= SnakeLen - 1; ++i)
     {
-        dist[i] = graph[v][i];
-        S[i] = 0;
-        if (graph[i][j] < INF)
-            path[i] = v;
-        else
-            path[i] = -1;
+        if (s->Data[i].x == p->x && s->Data[i].y == p->y)
+            return false;
     }
-    S[v] = 1;
-    path[v] = 0;
-    for (i = 0; i < n; i++)
+    if (SnakeLen == 2)
     {
-        mind = INF;
-        for (j = 1; j <= n; j++)
-            if (S[j] == 0 && dist[j] < mind)
-            {
-                u = j;
-                mind = dist[j];
-            }
-        S[u] = 1;
-        for (j = 1; j <= n; j++)
-            if (S[j] == 0)
-                if (graph[u][j] < INF && dist[u] + graph[u][j] < dist[j])
-                {
-                    dist[j] = dist[u] + graph[u][j];
-                    path[j] = u;
-                }
+        if (s->Data[2].x == p->x && s->Data[2].y == p->y)
+            return false;
     }
-    // printf("%.2f\n", dist[n]);
-    return dist[n];
+    return true;
 }
-void Dijkstra(int v)
+
+void move_snake(Snake* s, int dir)
 {
-    int path[1001];
-    float dist[1001], mind, d;
-    int S[1001];
-    int i, j, u;
-    for (i = 1; i <= n; i++)
-    {
-        dist[i] = graph[v][i];
-        S[i] = 0;
-        if (graph[i][j] < INF)
-            path[i] = v;
-        else
-            path[i] = -1;
-    }
-    S[v] = 1;
-    path[v] = 0;
-    for (i = 0; i < n; i++)
-    {
-        mind = INF;
-        for (j = 1; j <= n; j++)
-            if (S[j] == 0 && dist[j] < mind)
-            {
-                u = j;
-                mind = dist[j];
-            }
-        S[u] = 1;
-        for (j = 1; j <= n; j++)
-            if (S[j] == 0)
-                if (graph[u][j] < INF && dist[u] + graph[u][j] < dist[j])
-                {
-                    dist[j] = dist[u] + graph[u][j];
-                    path[j] = u;
-                }
-    }
-    // printf("%.2f", dist[n]);
-    secm = INF;
-    int k = path[n];
-    i = 0;
-    apath[i++] = n;
-    while (k != 1)
-    {
-        apath[i] = k;
-        k = path[k];
-        i++;
-    }
-    apath[i] = 1;
+    for (register int i = SnakeLen; i >= 2; --i)
+        s->Data[i] = s->Data[i - 1];
+    s->Data[1].x += move[dir].x;
+    s->Data[1].y += move[dir].y;
+}
 
-    for (; i > 0; i--)
+void bfs()
+{
+    q[qend].dis = 0;
+    q[qend].pos = CurrentSnake.Data[1];
+    q[qend].snake = CurrentSnake;
+    ++qend;
+    vis[CurrentSnake.Data[1].x][CurrentSnake.Data[1].y] = true;
+
+    while (qfront != qend - 1)
     {
-        float x;
-        x = graph[apath[i]][apath[i - 1]];
-
-        graph[apath[i]][apath[i - 1]] = INF;
-        graph[apath[i - 1]][apath[i]] = INF;
-
-        d = D2(1);
-        // printf("%.2f", d);
-        if (d < secm)
+        const QNode* now = &q[++qfront];
+        
+        if (now->pos.x == EndPoint.x && now->pos.y == EndPoint.y)
         {
-            secm = d;
+            printf("%d", now->dis);
+            return;
         }
 
-        graph[apath[i]][apath[i - 1]] = x;
-        graph[apath[i - 1]][apath[i]] = x;
+        for (register int i = 0; i < 4; ++i)
+        {
+            QNode next;
+            next.dis = now->dis + 1;
+            next.pos.x = now->pos.x + move[i].x;
+            next.pos.y = now->pos.y + move[i].y;
+
+            if (check(&next.pos, &now->snake))
+            {
+                vis[next.pos.x][next.pos.y] = true;
+                next.snake = now->snake;
+                move_snake(&next.snake, i);
+                q[qend++] = next;
+            }
+        }
     }
-    printf("%.2f\n", secm);
+
+    printf("-1");
 }
 
 int main()
 {
-    int i, j, a, b, x, y;
-    int row[1000], col[1000];
-    float d;
-    scanf("%d %d ", &n, &m);
+    scanf("%d%d", &n, &m);
+    for (register int i = 0; i < n; ++i)
+        scanf("%s", map[i]);
 
-    for (i = 1; i <= n; i++)
+    for (register int i = 0; i < n; ++i)
     {
-        scanf("%d %d", &x, &y);
-        row[i] = x;
-        col[i] = y;
-    }
-
-    for (i = 1; i <= m; i++)
-    {
-        scanf("%d %d", &a, &b);
-        d = sqrt(1.0 * ((row[a] - row[b]) * (row[a] - row[b]) + (col[a] - col[b]) * (col[a] - col[b])));
-        graph[a][b] = d;
-        graph[b][a] = d;
-    }
-    for (i = 1; i <= n; i++)
-        for (j = 1; j <= n; j++)
+        for (register int j = 0; j < m; ++j)
         {
-            if (j == i)
-                graph[i][j] = 0.0;
-            else
+            if (map[i][j] >= '1' && map[i][j] <= '9')
             {
-                if (!graph[i][j])
-                    graph[i][j] = INF;
+                const int snakeIdx = map[i][j] - '0';
+                if (SnakeLen < snakeIdx)
+                    SnakeLen = snakeIdx;
+                CurrentSnake.Data[snakeIdx].x = i;
+                CurrentSnake.Data[snakeIdx].y = j;
+            }
+            else if (map[i][j] == '@')
+            {
+                EndPoint.x = i;
+                EndPoint.y = j;
             }
         }
-    Dijkstra(1);
+    }
 
-    // system("PAUSE");
+    bfs();
+
     return 0;
 }
